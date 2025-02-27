@@ -14,15 +14,27 @@
         }
         header {
             background: #DFC5FE;
-            color: lavender;
+            color: black;
             padding: 20px;
         }
         section {
             padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .row {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+            margin-bottom: 20px;
+        } 
+        .row p { 
+            width: 45%; 
         }
         footer {
             background: #DFC5FE;
-            color: white;
+            color: black;
             padding: 10px;
             position: fixed;
             bottom: 0;
@@ -36,7 +48,14 @@
     </header>
     <section>
         <h2>About Me</h2>
-        <p>Hi! My name is Maria, and I am trying to find my top college choices. These are some colleges I would like to go to, and I've added a list of pros and cons for each of them. Right now, I am interested in the medical field and am looking at choices for undergrad.</p>
+        <div class="row">
+            <p>Hi! My name is Maria, and I am trying to find my top college choices. These are some colleges I would like to go to, and I've added a list of pros and cons for each of them. Right now, I am interested in the medical field and am looking at choices for undergrad.</p>
+            <p>                                                            </p>
+        </div>
+        <div class="row">
+            <p>This is going to be the section for my top college selection</p>
+            <p>THis is going to be the section for my second college selection</p>
+        </div>    
     </section>
     <footer>
         <p>&copy; 2025 My Website</p>
