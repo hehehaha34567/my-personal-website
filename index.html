@@ -1,136 +1,100 @@
-import turtle
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Pong Game</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: black;
+            color: white;
+        }
+        canvas {
+            background-color: black;
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ping Pong Game</h1>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-# Set up the window
-win = turtle.Screen()
-win.title("Ping Pong Game")
-win.bgcolor("black")
-win.setup(width=800, height=600)
-win.tracer(0)
+        const paddleWidth = 10, paddleHeight = 100;
+        let playerY = canvas.height / 2 - paddleHeight / 2;
+        let aiY = canvas.height / 2 - paddleHeight / 2;
+        let ballX = canvas.width / 2, ballY = canvas.height / 2;
+        let ballSpeedX = 5, ballSpeedY = 5;
 
-# Score variables
-score_a = 0
-score_b = 0
+        document.addEventListener("mousemove", event => {
+            let rect = canvas.getBoundingClientRect();
+            let root = document.documentElement;
+            playerY = event.clientY - rect.top - paddleHeight / 2;
+        });
 
-# Paddle A
-paddle_a = turtle.Turtle()
-paddle_a.speed(0)
-paddle_a.shape("square")
-paddle_a.color("white")
-paddle_a.shapesize(stretch_wid=6, stretch_len=1)
-paddle_a.penup()
-paddle_a.goto(-350, 0)
+        function drawRect(x, y, width, height, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, width, height);
+        }
 
-# Paddle B
-paddle_b = turtle.Turtle()
-paddle_b.speed(0)
-paddle_b.shape("square")
-paddle_b.color("white")
-paddle_b.shapesize(stretch_wid=6, stretch_len=1)
-paddle_b.penup()
-paddle_b.goto(350, 0)
+        function drawBall(x, y, radius, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+            ctx.fill();
+        }
 
-# Ball
-ball = turtle.Turtle()
-ball.speed(40)
-ball.shape("square")
-ball.color("white")
-ball.penup()
-ball.goto(0, 0)
-ball.dx = 2
-ball.dy = 2
+        function resetBall() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = -ballSpeedX;
+        }
 
-# Scoreboard
-scoreboard = turtle.Turtle()
-scoreboard.speed(0)
-scoreboard.color("white")
-scoreboard.penup()
-scoreboard.hideturtle()
-scoreboard.goto(0, 260)
+        function update() {
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
 
-# Update scoreboard
-def update_scoreboard():
-    scoreboard.clear()
-    scoreboard.write(f"Player A: {score_a}  Player B: {score_b}", align="center", font=("Courier", 24, "normal"))
+            if (ballY <= 0 || ballY >= canvas.height) {
+                ballSpeedY = -ballSpeedY;
+            }
 
-update_scoreboard()
+            if (ballX <= 20) {
+                if (ballY > playerY && ballY < playerY + paddleHeight) {
+                    ballSpeedX = -ballSpeedX;
+                } else {
+                    resetBall();
+                }
+            }
 
-# Paddle movement
-def paddle_a_up():
-    y = paddle_a.ycor()
-    if y < 250:
-        paddle_a.sety(y + 20)
+            if (ballX >= canvas.width - 20) {
+                if (ballY > aiY && ballY < aiY + paddleHeight) {
+                    ballSpeedX = -ballSpeedX;
+                } else {
+                    resetBall();
+                }
+            }
 
-def paddle_a_down():
-    y = paddle_a.ycor()
-    if y > -240:
-        paddle_a.sety(y - 20)
+            aiY += (ballY - (aiY + paddleHeight / 2)) * 0.1;
+        }
 
-def paddle_b_up():
-    y = paddle_b.ycor()
-    if y < 250:
-        paddle_b.sety(y + 20)
+        function draw() {
+            drawRect(0, 0, canvas.width, canvas.height, "black");
+            drawRect(10, playerY, paddleWidth, paddleHeight, "white");
+            drawRect(canvas.width - 20, aiY, paddleWidth, paddleHeight, "white");
+            drawBall(ballX, ballY, 10, "white");
+        }
 
-def paddle_b_down():
-    y = paddle_b.ycor()
-    if y > -240:
-        paddle_b.sety(y - 20)
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
 
-# Keyboard bindings
-win.listen()
-win.onkeypress(paddle_a_up, "w")
-win.onkeypress(paddle_a_down, "s")
-win.onkeypress(paddle_b_up, "Up")
-win.onkeypress(paddle_b_down, "Down")
-
-# Main game loop
-while True:
-    win.update()
-    
-    # Move the ball
-    ball.setx(ball.xcor() + ball.dx)
-    ball.sety(ball.ycor() + ball.dy)
-    
-    # Border collision
-    if ball.ycor() > 290:
-        ball.sety(290)
-        ball.dy *= -1
-    
-    if ball.ycor() < -290:
-        ball.sety(-290)
-        ball.dy *= -1
-    
-    # Left and right border collision (score update)
-    global score_a, score_b
-    if ball.xcor() > 390:
-        score_a += 1
-        update_scoreboard()
-        ball.goto(0, 0)
-        ball.dx *= -1
-    
-    if ball.xcor() < -390:
-        score_b += 1
-        update_scoreboard()
-        ball.goto(0, 0)
-        ball.dx *= -1
-    
-    # Paddle collision
-    if (340 < ball.xcor() < 350) and (paddle_b.ycor() - 50 < ball.ycor() < paddle_b.ycor() + 50):
-        ball.setx(340)
-        ball.dx *= -1
-    
-    if (-350 < ball.xcor() < -340) and (paddle_a.ycor() - 50 < ball.ycor() < paddle_a.ycor() + 50):
-        ball.setx(-340)
-        ball.dx *= -1
-    
-    # Check for winner
-    if score_a >= 11:
-        scoreboard.clear()
-        scoreboard.write("Player A Wins!", align="center", font=("Courier", 24, "normal"))
-        break
-    
-    if score_b >= 11:
-        scoreboard.clear()
-        scoreboard.write("Player B Wins!", align="center", font=("Courier", 24, "normal"))
-        break
-
-win.mainloop()
+        gameLoop();
+    </script>
+</body>
+</html>
