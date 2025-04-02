@@ -1,194 +1,136 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ping Pong Game</title>
-    <style>
-        body {
-            font-family: "Times New Roman", Times, serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
+import turtle
 
-        canvas {
-            background-color: black;
-            display: block;
-            border: 2px solid white;
-        }
+# Set up the window
+win = turtle.Screen()
+win.title("Ping Pong Game")
+win.bgcolor("black")
+win.setup(width=800, height=600)
+win.tracer(0)
 
-        h1 {
-            font-size: 36px;
-            color: #333;
-            margin-bottom: 20px;
-        }
+# Score variables
+score_a = 0
+score_b = 0
 
-        .score {
-            font-size: 24px;
-            color: white;
-            margin: 10px 0;
-        }
+# Paddle A
+paddle_a = turtle.Turtle()
+paddle_a.speed(0)
+paddle_a.shape("square")
+paddle_a.color("white")
+paddle_a.shapesize(stretch_wid=6, stretch_len=1)
+paddle_a.penup()
+paddle_a.goto(-350, 0)
 
-        .instructions {
-            font-size: 18px;
-            color: #333;
-            margin: 10px 0;
-        }
+# Paddle B
+paddle_b = turtle.Turtle()
+paddle_b.speed(0)
+paddle_b.shape("square")
+paddle_b.color("white")
+paddle_b.shapesize(stretch_wid=6, stretch_len=1)
+paddle_b.penup()
+paddle_b.goto(350, 0)
 
-        .footer {
-            font-size: 14px;
-            color: #333;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Ping Pong Game</h1>
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
-    <div class="score">
-        <p>Player 1: <span id="score1">0</span> | Player 2: <span id="score2">0</span></p>
-    </div>
-    <div class="instructions">
-        <p>Use the "W" and "S" keys to move the left paddle up and down.</p>
-        <p>Use the "Arrow Up" and "Arrow Down" keys to move the right paddle up and down.</p>
-        <p>First player to 10 points wins!</p>
-    </div>
-    <div class="footer">
-        <p>Created with <3 using HTML, CSS, and JavaScript</p>
-    </div>
+# Ball
+ball = turtle.Turtle()
+ball.speed(40)
+ball.shape("square")
+ball.color("white")
+ball.penup()
+ball.goto(0, 0)
+ball.dx = 2
+ball.dy = 2
 
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
+# Scoreboard
+scoreboard = turtle.Turtle()
+scoreboard.speed(0)
+scoreboard.color("white")
+scoreboard.penup()
+scoreboard.hideturtle()
+scoreboard.goto(0, 260)
 
-        let ballRadius = 10;
-        let x = canvas.width / 2;
-        let y = canvas.height / 2;
-        let dx = 2;
-        let dy = -2;
-        let paddleHeight = 75;
-        let paddleWidth = 10;
-        let player1Y = (canvas.height - paddleHeight) / 2;
-        let player2Y = (canvas.height - paddleHeight) / 2;
-        let player1Dy = 0;
-        let player2Dy = 0;
-        let player1Score = 0;
-        let player2Score = 0;
+# Update scoreboard
+def update_scoreboard():
+    scoreboard.clear()
+    scoreboard.write(f"Player A: {score_a}  Player B: {score_b}", align="center", font=("Courier", 24, "normal"))
 
-        document.addEventListener("keydown", keyDownHandler, false);
-        document.addEventListener("keyup", keyUpHandler, false);
+update_scoreboard()
 
-        function keyDownHandler(e) {
-            if (e.key == "w" || e.key == "W") {
-                player1Dy = -5;
-            } else if (e.key == "s" || e.key == "S") {
-                player1Dy = 5;
-            } else if (e.key == "ArrowUp") {
-                player2Dy = -5;
-            } else if (e.key == "ArrowDown") {
-                player2Dy = 5;
-            }
-        }
+# Paddle movement
+def paddle_a_up():
+    y = paddle_a.ycor()
+    if y < 250:
+        paddle_a.sety(y + 20)
 
-        function keyUpHandler(e) {
-            if (e.key == "w" || e.key == "W" || e.key == "s" || e.key == "S") {
-                player1Dy = 0;
-            } else if (e.key == "ArrowUp" || e.key == "ArrowDown") {
-                player2Dy = 0;
-            }
-        }
+def paddle_a_down():
+    y = paddle_a.ycor()
+    if y > -240:
+        paddle_a.sety(y - 20)
 
-        function drawBall() {
-            ctx.beginPath();
-            ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-            ctx.fillStyle = "#FFFFFF";
-            ctx.fill();
-            ctx.closePath();
-        }
+def paddle_b_up():
+    y = paddle_b.ycor()
+    if y < 250:
+        paddle_b.sety(y + 20)
 
-        function drawPaddles() {
-            ctx.beginPath();
-            ctx.rect(0, player1Y, paddleWidth, paddleHeight);  // Left paddle
-            ctx.rect(canvas.width - paddleWidth, player2Y, paddleWidth, paddleHeight);  // Right paddle
-            ctx.fillStyle = "#FFFFFF";
-            ctx.fill();
-            ctx.closePath();
-        }
+def paddle_b_down():
+    y = paddle_b.ycor()
+    if y > -240:
+        paddle_b.sety(y - 20)
 
-        function drawScore() {
-            document.getElementById("score1").textContent = player1Score;
-            document.getElementById("score2").textContent = player2Score;
-        }
+# Keyboard bindings
+win.listen()
+win.onkeypress(paddle_a_up, "w")
+win.onkeypress(paddle_a_down, "s")
+win.onkeypress(paddle_b_up, "Up")
+win.onkeypress(paddle_b_down, "Down")
 
-        function collisionDetection() {
-            if (y + dy < ballRadius) {
-                dy = -dy;
-            } else if (y + dy > canvas.height - ballRadius) {
-                dy = -dy;
-            }
+# Main game loop
+while True:
+    win.update()
+    
+    # Move the ball
+    ball.setx(ball.xcor() + ball.dx)
+    ball.sety(ball.ycor() + ball.dy)
+    
+    # Border collision
+    if ball.ycor() > 290:
+        ball.sety(290)
+        ball.dy *= -1
+    
+    if ball.ycor() < -290:
+        ball.sety(-290)
+        ball.dy *= -1
+    
+    # Left and right border collision (score update)
+    global score_a, score_b
+    if ball.xcor() > 390:
+        score_a += 1
+        update_scoreboard()
+        ball.goto(0, 0)
+        ball.dx *= -1
+    
+    if ball.xcor() < -390:
+        score_b += 1
+        update_scoreboard()
+        ball.goto(0, 0)
+        ball.dx *= -1
+    
+    # Paddle collision
+    if (340 < ball.xcor() < 350) and (paddle_b.ycor() - 50 < ball.ycor() < paddle_b.ycor() + 50):
+        ball.setx(340)
+        ball.dx *= -1
+    
+    if (-350 < ball.xcor() < -340) and (paddle_a.ycor() - 50 < ball.ycor() < paddle_a.ycor() + 50):
+        ball.setx(-340)
+        ball.dx *= -1
+    
+    # Check for winner
+    if score_a >= 11:
+        scoreboard.clear()
+        scoreboard.write("Player A Wins!", align="center", font=("Courier", 24, "normal"))
+        break
+    
+    if score_b >= 11:
+        scoreboard.clear()
+        scoreboard.write("Player B Wins!", align="center", font=("Courier", 24, "normal"))
+        break
 
-            if (x + dx < paddleWidth) {
-                if (y > player1Y && y < player1Y + paddleHeight) {
-                    dx = -dx;
-                } else {
-                    player2Score++;
-                    resetBall();
-                }
-            } else if (x + dx > canvas.width - paddleWidth - ballRadius) {
-                if (y > player2Y && y < player2Y + paddleHeight) {
-                    dx = -dx;
-                } else {
-                    player1Score++;
-                    resetBall();
-                }
-            }
-        }
-
-        function resetBall() {
-            x = canvas.width / 2;
-            y = canvas.height / 2;
-            dx = -dx;
-            dy = -dy;
-        }
-
-        function updatePaddles() {
-            if (player1Y + player1Dy >= 0 && player1Y + player1Dy <= canvas.height - paddleHeight) {
-                player1Y += player1Dy;
-            }
-
-            if (player2Y + player2Dy >= 0 && player2Y + player2Dy <= canvas.height - paddleHeight) {
-                player2Y += player2Dy;
-            }
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            drawBall();
-            drawPaddles();
-            drawScore();
-            collisionDetection();
-            updatePaddles();
-
-            if (player1Score === 10 || player2Score === 10) {
-                alert("Game Over! " + (player1Score === 10 ? "Player 1" : "Player 2") + " wins!");
-                player1Score = 0;
-                player2Score = 0;
-            }
-
-            x += dx;
-            y += dy;
-            requestAnimationFrame(draw);
-        }
-
-        draw();
-    </script>
-</body>
-</html>
-
+win.mainloop()
